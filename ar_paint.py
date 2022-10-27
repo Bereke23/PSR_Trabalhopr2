@@ -65,8 +65,6 @@ def main():
     #Inicialmente estamos a criar um array de apenas de zeros com tres canais (0,0,0,3) ( caso nós quissesemos uma janela preta bastava meter a primieira parte do comando sem somar nada)
     #Na segunda parte onde estamos a somar (255,255,0),nós estamos a alterar o array de zeros em um array de (255,255,0,3)
     #E segundo os padrões de RGB, o array (255,255,0) é cor azul clara e (255,255,255) é branco e (0,0,0) é preto
-    
-    #cv2.setMouseCallback('Paint',desenhar)
 
     while True:
         _, image = capture.read()  # get an image from the camera
@@ -100,7 +98,6 @@ def main():
                 cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3)
                 cv2.circle(image_copy, (int(X),int(Y)),4, (0, 0, 255), -1)
                 cv2.imshow(window_original,image_copy)
-        #cv2.imshow('Paint',gui_image)
         k= cv2.waitKey(1)
         if k == ord('q'):   # wait for esckey to exit
             break
@@ -109,34 +106,26 @@ def main():
     
 
 
-def desenhar(event,x,y,flags,userdata):
-    global drawing, gui_image ,cor 
-    if event == cv2.EVENT_LBUTTONDOWN:
-        if drawing:
-            drawing = False
-        else:
-            drawing = True
-            del xs[:]
-            del ys[:]
-            c= cv2.waitKey(0) 
-            if c == 98: # Red
-                cor = (250,0,0)
-            if c == 103: # Green
-                cor = (0,250,0)
-            if c == 114: # Blue
-                cor = (0,0,250)
+def desenhar(x,y):
+    global gui_image ,cor 
+    c= cv2.waitKey(0) 
+    if c == 98: # Red
+        cor = (250,0,0)
+    if c == 103: # Green
+        cor = (0,250,0)
+    if c == 114: # Blue
+        cor = (0,0,250)
 
-    if event == cv2.EVENT_MOUSEMOVE:
-        if drawing and cor != (0,0,0):
-            xs.append(x)
-            ys.append(y)
+    if cor != (0,0,0):
+        xs.append(x)
+        ys.append(y)
 
-            for n in range(0,len(xs)-1):
-                x1 = xs[n]
-                y1 = ys[n]
-                x2 = xs[n+1]
-                y2 = ys[n+1]
-                cv2.line(gui_image,(x1,y1),(x2,y2),cor,2)
+        for n in range(0,len(xs)-1):
+            x1 = xs[n]
+            y1 = ys[n]
+            x2 = xs[n+1]
+            y2 = ys[n+1]
+            cv2.line(gui_image,(x1,y1),(x2,y2),cor,2)
    
 
     
