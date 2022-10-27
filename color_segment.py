@@ -26,12 +26,6 @@ def main():
     trachbaBmin = 'Bmin x %d' % alpha_slider_max 
     trachbaBmax = 'Bmax x %d' % alpha_slider_max 
 
-    a = int(cv2.getTrackbarPos(trachbaRmin, window_segment))
-    b = int(cv2.getTrackbarPos(trachbaRmax, window_segment))
-    c = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
-    d = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
-    e = int(cv2.getTrackbarPos(trachbaBmin, window_segment))
-    f = int(cv2.getTrackbarPos(trachbaBmax, window_segment))
     cv2.createTrackbar(trachbaRmin, window_segment , 0, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaRmax, window_segment , 0, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaGmin, window_segment , 0, alpha_slider_max, fall)
@@ -39,20 +33,25 @@ def main():
     cv2.createTrackbar(trachbaBmin, window_segment , 0, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaBmax, window_segment , 0, alpha_slider_max, fall)
     while True:
-        ret, image_rgb = capture.read()  # get an image from the camera
+        _, image_rgb = capture.read()  # get an image from the camera
  
-        if ret:
-             # add code to show acquired image
+         # add code to show acquired image
+        Rmin = int(cv2.getTrackbarPos(trachbaRmin, window_segment))
+        Rmax = int(cv2.getTrackbarPos(trachbaRmax, window_segment))
+        Gmin = int(cv2.getTrackbarPos(trachbaGmin, window_segment))
+        Gmax = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
+        Bmin = int(cv2.getTrackbarPos(trachbaBmin, window_segment))
+        Bmax = int(cv2.getTrackbarPos(trachbaBmax, window_segment))
+
 
             #masking the image using inRange() function
-            image_hsv = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2HSV)
-            image_hsv_mask = cv2.inRange(image_hsv,(a, c, e), (b, d, f))
+        image_mask = cv2.inRange(image_rgb,(Rmin,Gmin,Bmin), (Rmax,Gmax,Bmax))
         
         cv2.imshow(window_original,image_rgb)
-        cv2.imshow(window_segment,image_hsv_mask )
+        cv2.imshow(window_segment,image_mask)
         k = cv2.waitKey(1)
         if k == ord('w'):
-           dictionary = { "limits":{"B":{ "max":f ,"min": e }, "G":{ "max":d,"min": c }, "R":{ "max":b,"min": a } }}
+           dictionary = { "limits":{"B":{ "max": Bmax ,"min":  Bmin}, "G":{ "max":Gmax,"min": Gmin }, "R":{ "max":Rmax,"min": Rmin } }}
            with open("limits.json", "w") as outfile:
             json.dump(dictionary, outfile)
         if k == ord('q'):
@@ -66,3 +65,5 @@ def main():
     
 if __name__ == '__main__':
     main()
+
+
