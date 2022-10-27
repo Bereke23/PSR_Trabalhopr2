@@ -13,19 +13,19 @@ def main():
     # initial setup
     team = {}
     alpha_slider_max = 255
-    a = 10
-    b = 50
-    c = 50
-    d = 255
-    e = 25
-    f = 255
+
     capture = cv2.VideoCapture(0)
     window_original = 'Janela de video real'
     window_segment = 'Janela de parametrização'
     cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow(window_segment,cv2.WINDOW_AUTOSIZE)
 
-
+    a = int(cv2.getTrackbarPos(trachbaRmin, window_segment))
+    b = int(cv2.getTrackbarPos(trachbaRmax, window_segment))
+    c = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
+    d = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
+    e = int(cv2.getTrackbarPos(trachbaBmin, window_segment))
+    f = int(cv2.getTrackbarPos(trachbaBmax, window_segment))
     trachbaRmin = 'Rmin x %d' % alpha_slider_max
     trachbaRmax = 'Rmax x %d' % alpha_slider_max   
     trachbaGmin = 'Gmin x %d' % alpha_slider_max   
@@ -43,14 +43,6 @@ def main():
  
         if ret:
              # add code to show acquired image
-            
-            if int(cv2.getTrackbarPos(trachbaRmin, window_segment)) > 0:
-                a = int(cv2.getTrackbarPos(trachbaRmin, window_segment))
-                b = int(cv2.getTrackbarPos(trachbaRmax, window_segment))
-                c = int(cv2.getTrackbarPos(trachbaGmin, window_segment))
-                d = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
-                e = int(cv2.getTrackbarPos(trachbaBmin, window_segment))
-                f = int(cv2.getTrackbarPos(trachbaBmax, window_segment))
 
             #masking the image using inRange() function
             image_hsv = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2HSV)
@@ -69,7 +61,7 @@ def main():
     
         # add code to wait for a key press
     capture.release()
-    cv2.destroyAllWindows()
+    cv2.waitKey(0)
 
     
 if __name__ == '__main__':
