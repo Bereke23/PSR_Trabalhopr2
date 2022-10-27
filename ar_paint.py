@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
 from copy import deepcopy
 from pickle import TRUE
 import argparse
 from re import T
 import cv2  
 import numpy as np
+from requests import patch
 paintWindow = (0,0,0)
 xs= []
 ys= []
@@ -14,14 +16,16 @@ cor =()
 def Inicializacao():
     # Definição dos argumentos de entrada:
     parser = argparse.ArgumentParser(description='Modo de funcionamento')
-    parser.add_argument('-j JSON','--json JSON',type = int, required= True,
+    parser.add_argument('-j_JSON','--json_JSON',type = str, required= True,
                     help='Full path to json file')
     args = vars(parser.parse_args())
-    path = args['json JSON'] # A localização do ficheiro json
+    path = args['json_JSON'] # A localização do ficheiro json
+    print(path)
 
 
 
 def main():
+    Inicializacao()
     global gui_image
     height = 400
     width = 600
