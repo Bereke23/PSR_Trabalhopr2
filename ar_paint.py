@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from copy import deepcopy
+import json
+from operator import le
 from pickle import TRUE
 import argparse
 from re import T
@@ -13,6 +15,27 @@ drawing = False
 gui_image = None
 cor =()
 # Abre a imagem
+def leitura(path):
+    B ={}
+    G ={}
+    R ={}
+    # Leitura da pasta JSON
+    # Opening JSON file
+    f = open(path)
+    # returns JSON object as 
+    # a dictionary
+    data = json.load(f)
+    # Iterating through the json
+    G ={'min': int(data['limits']['G']['min']), 'max': int(data['limits']['G']['max'])}
+    B = {'min': int(data['limits']['B']['min']), 'max': int(data['limits']['B']['max'])}
+    R = {'min': int(data['limits']['R']['min']), 'max': int(data['limits']['R']['max'])}
+    print(G)
+    print(B)
+    print(R)
+    # Closing file
+    f.close()
+    exit(0)
+
 def Inicializacao():
     # Definição dos argumentos de entrada:
     parser = argparse.ArgumentParser(description='Modo de funcionamento')
@@ -21,10 +44,12 @@ def Inicializacao():
     args = vars(parser.parse_args())
     path = args['json_JSON'] # A localização do ficheiro json
     print(path)
+    leitura(path)
 
 
 
 def main():
+    
     Inicializacao()
     global gui_image
     height = 400
