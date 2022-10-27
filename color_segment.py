@@ -19,6 +19,12 @@ def main():
     window_segment = 'Janela de parametrização'
     cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow(window_segment,cv2.WINDOW_AUTOSIZE)
+    trachbaRmin = 'Rmin x %d' % alpha_slider_max
+    trachbaRmax = 'Rmax x %d' % alpha_slider_max   
+    trachbaGmin = 'Gmin x %d' % alpha_slider_max   
+    trachbaGmax = 'Gmax x %d' % alpha_slider_max  
+    trachbaBmin = 'Bmin x %d' % alpha_slider_max 
+    trachbaBmax = 'Bmax x %d' % alpha_slider_max 
 
     a = int(cv2.getTrackbarPos(trachbaRmin, window_segment))
     b = int(cv2.getTrackbarPos(trachbaRmax, window_segment))
@@ -26,12 +32,6 @@ def main():
     d = int(cv2.getTrackbarPos(trachbaGmax, window_segment))
     e = int(cv2.getTrackbarPos(trachbaBmin, window_segment))
     f = int(cv2.getTrackbarPos(trachbaBmax, window_segment))
-    trachbaRmin = 'Rmin x %d' % alpha_slider_max
-    trachbaRmax = 'Rmax x %d' % alpha_slider_max   
-    trachbaGmin = 'Gmin x %d' % alpha_slider_max   
-    trachbaGmax = 'Gmax x %d' % alpha_slider_max  
-    trachbaBmin = 'Bmin x %d' % alpha_slider_max 
-    trachbaBmax = 'Bmax x %d' % alpha_slider_max 
     cv2.createTrackbar(trachbaRmin, window_segment , 0, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaRmax, window_segment , 0, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaGmin, window_segment , 0, alpha_slider_max, fall)
