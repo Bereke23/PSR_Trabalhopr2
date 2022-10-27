@@ -5,7 +5,8 @@ from operator import le
 from pickle import TRUE
 import argparse
 from re import T
-import cv2  
+import cv2
+from cv2 import GC_BGD  
 import numpy as np
 from requests import patch
 paintWindow = (0,0,0)
@@ -29,12 +30,12 @@ def leitura(path):
     G ={'min': int(data['limits']['G']['min']), 'max': int(data['limits']['G']['max'])}
     B = {'min': int(data['limits']['B']['min']), 'max': int(data['limits']['B']['max'])}
     R = {'min': int(data['limits']['R']['min']), 'max': int(data['limits']['R']['max'])}
-    print(G)
-    print(B)
-    print(R)
     # Closing file
     f.close()
-    exit(0)
+    print(R)
+    print(G)
+    print(B)
+    return R, G , B
 
 def Inicializacao():
     # Definição dos argumentos de entrada:
@@ -43,14 +44,14 @@ def Inicializacao():
                     help='Full path to json file')
     args = vars(parser.parse_args())
     path = args['json_JSON'] # A localização do ficheiro json
-    print(path)
-    leitura(path)
-
+    return path
 
 
 def main():
+    path = Inicializacao()
+    R,G,B = leitura(path)
     
-    Inicializacao()
+
     global gui_image
     height = 400
     width = 600

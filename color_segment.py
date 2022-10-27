@@ -11,7 +11,6 @@ def fall(x):
 
 def main():
     # initial setup
-    team = {}
     alpha_slider_max = 255
 
     capture = cv2.VideoCapture(0)
