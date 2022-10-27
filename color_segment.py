@@ -16,7 +16,7 @@ def main():
 
     capture = cv2.VideoCapture(0)
     window_original = 'Janela de video real'
-    window_segment = 'Janela de parametrização'
+    window_segment = 'Janela de parametrizacao'
     cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow(window_segment,cv2.WINDOW_AUTOSIZE)
     trachbaRmin = 'Rmin x %d' % alpha_slider_max
@@ -27,11 +27,11 @@ def main():
     trachbaBmax = 'Bmax x %d' % alpha_slider_max 
 
     cv2.createTrackbar(trachbaRmin, window_segment , 0, alpha_slider_max, fall)
-    cv2.createTrackbar(trachbaRmax, window_segment , 0, alpha_slider_max, fall)
+    cv2.createTrackbar(trachbaRmax, window_segment , 255, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaGmin, window_segment , 0, alpha_slider_max, fall)
-    cv2.createTrackbar(trachbaGmax, window_segment , 0, alpha_slider_max, fall)
+    cv2.createTrackbar(trachbaGmax, window_segment , 255, alpha_slider_max, fall)
     cv2.createTrackbar(trachbaBmin, window_segment , 0, alpha_slider_max, fall)
-    cv2.createTrackbar(trachbaBmax, window_segment , 0, alpha_slider_max, fall)
+    cv2.createTrackbar(trachbaBmax, window_segment , 255, alpha_slider_max, fall)
     while True:
         _, image_rgb = capture.read()  # get an image from the camera
  
