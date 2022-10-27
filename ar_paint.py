@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pickle import TRUE
+import argparse
 from re import T
 import cv2  
 import numpy as np
@@ -10,6 +11,16 @@ drawing = False
 gui_image = None
 cor =()
 # Abre a imagem
+def Inicializacao():
+    # Definição dos argumentos de entrada:
+    parser = argparse.ArgumentParser(description='Modo de funcionamento')
+    parser.add_argument('-j JSON','--json JSON',type = int, required= True,
+                    help='Full path to json file')
+    args = vars(parser.parse_args())
+    path = args['json JSON'] # A localização do ficheiro json
+
+
+
 def main():
     global gui_image
     height = 400
