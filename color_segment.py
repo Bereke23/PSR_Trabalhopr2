@@ -51,7 +51,7 @@ def main():
         cv2.imshow(window_segment,image_mask)
         k = cv2.waitKey(1)
         if k == ord('w'):
-           dictionary = { "limits":{"B":{ "max": Bmax ,"min":  Bmin}, "G":{ "max":Gmax,"min": Gmin }, "R":{ "max":Rmax,"min": Rmin } }}
+           dictionary = { "limits":{"B":{ "max": str(Bmax) ,"min":  str(Bmin)}, "G":{ "max":str(Gmax),"min": str(Gmin) }, "R":{ "max":str(Rmax),"min": str(Rmin) } }}
            with open("limits.json", "w") as outfile:
             json.dump(dictionary, outfile)
         if k == ord('q'):
