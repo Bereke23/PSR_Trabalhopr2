@@ -41,7 +41,7 @@ def Inicializacao():
     parser.add_argument('-j','--json',type = str, required= True,
                     help='Full path to json file')
     args = vars(parser.parse_args())
-    path = args['json_JSON'] # A localização do ficheiro json
+    path = args['json'] # A localização do ficheiro json
     return path
 
 
