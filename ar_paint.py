@@ -47,23 +47,34 @@ def Inicializacao():
 
 def main():
     global gui_image
-    height = 400 # Defenição do tamanho da window, ou seja a altura e o grossura
-    width = 600
+    capture = cv2.VideoCapture(0) 
     path = Inicializacao() # Vai buscar o caminho do ficheiro JSON
     R,G,B = leitura(path) # Dicionario com os max e min de RGB cada um
 
-
-    capture = cv2.VideoCapture(0) 
-    window_original = 'Janela de video real'
-    window_paint = 'Paint'
-    cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
-    #cv2.namedWindow(window_paint,cv2.WINDOW_AUTOSIZE)
-    cv2.resizeWindow(window_original,height,width) # Mesma dimensão da janela
-    window_paint = np.zeros((height,width,3)) + (255,255,255) # Definição do pain (quadro branco)
-    gui_image = deepcopy(window_paint) 
-    
     while True:
+
         _, image = capture.read()  # get an image from the camera
+        height,width, _ = np.shape(image)
+        image = cv2.resize(image,(width,height)) # Resize the image
+        
+        window_original = 'Janela de video real'
+        window_paint_name = 'Paint'
+        
+        cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
+        #cv2.namedWindow(window_paint,cv2.WINDOW_AUTOSIZE)
+        cv2.resizeWindow(window_original,height,width) # Mesma dimensão da janela
+        cv2.imshow(window_original,image) # Show the image
+       
+       
+        window_paint = np.zeros((height,width,1)) #+ (255,255,255) # Definição do pain (quadro branco)
+        window_paint.fill(255)
+        cv2.namedWindow(window_paint_name,cv2.WINDOW_AUTOSIZE)
+        cv2.resizeWindow(window_paint_name,height,width) # Mesma dimensão da janela
+        cv2.imshow(window_paint_name,window_paint) # Show the image
+        
+        gui_image = deepcopy(window_paint) 
+        
+        # Show the image
         # aplicamos a mask na imagem live stream
         image_mask = cv2.inRange(image,(R['min'],G['min'],B['min']), (R['max'],G['max'],B['max']))
         # A parte seguinte está relacionada com a identificação do centroide do objeto
@@ -99,6 +110,11 @@ def main():
                 cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
                 cv2.circle(image_copy, (int(X),int(Y)),4, (0, 0, 255), -1) # faz um circulo no ponto do centroide
                 cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
+
+                #cv2.setMouseCallback(X,Y) # Função que desenha na janela do paint
+                
+
+
         k= cv2.waitKey(1)
         if k == ord('q'):   # wait for esckey to exit
             break
@@ -106,24 +122,23 @@ def main():
     cv2.destroyAllWindows()
     
 
-
-def desenhar(x,y):
+def desenhar(x,y):  # Função que desenha na janela do paint
     # Isto era suposto trabalhar 
     # Parte o desenho na janela do paint
     global gui_image ,cor 
     c= cv2.waitKey(0) 
-    if c == 98: # Red
-        cor = (250,0,0)
-    if c == 103: # Green
-        cor = (0,250,0)
-    if c == 114: # Blue
-        cor = (0,0,250)
+    if c == ord('b'): # Blue
+        cor = (255,0,0)
+    if c == ord('g'): # Green
+        cor = (0,255,0)
+    if c == ord('r'): # Red
+        cor = (0,0,255)
 
-    if cor != (0,0,0):
-        xs.append(x)
-        ys.append(y)
+    if cor != (0,0,0):  # Se a cor for diferente de preto
+        xs.append(x)    
+        ys.append(y)    
 
-        for n in range(0,len(xs)-1):
+        for n in range(0,len(xs)-1):    
             x1 = xs[n]
             y1 = ys[n]
             x2 = xs[n+1]
