@@ -9,6 +9,10 @@ import cv2
 from cv2 import GC_BGD
 import numpy as np
 from requests import patch
+import time
+
+
+
 paintWindow = (0,0,0)
 xs= []
 ys= []
@@ -115,8 +119,8 @@ def main():
             pt2 = (x1+ w, y1+ h)
             (X, Y) = centroids[k]
             cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
-            cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),2)
-            cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),2)
+            cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
+            cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
             # cv2.circle(image_copy, (int(X),int(Y)),4, (0, 0, 255), -1) # faz um circulo no ponto do centroide
             cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
 
@@ -134,27 +138,55 @@ def main():
 def desenhar(x,y):  # Função que desenha na janela do paint
     # Isto era suposto trabalhar
     # Parte o desenho na janela do paint
+    d = None
+    #return time with _  as  a separator using time module
+    tempo = time.ctime().replace(' ','_')
+    file_name = 'drawing_' + str(tempo) + '.jpg'
+    
+    
+    
     global gui_image, cor, window_paint_name
+
+
+
+    
     c= cv2.waitKey(1)
-    if c == ord('b'): # Blue
+    if c == ord('b'): # Blue color
         cor = (255,0,0)
-    if c == ord('g'): # Green
+    elif c == ord('g'): # Green color
         cor = (0,255,0)
-    if c == ord('r'): # Red
+    elif c == ord('r'): # Red color
         cor = (0,0,255)
+    elif c == ord('c'): # Clear paint window
+        gui_image.fill(255)
+    elif c == ord('+'):   # começa a desenhar com um pincel maior
+       pass 
+    # elif c == ord('-'):   # desenha com um pincel menor
+    #     cv2.line(gui_image, (x,y), (x1,y1), cor, thickness=+1)
+       #diminui o tamanho do pincel
+       #pass
+    elif c == ord('-'):
+        pass
+    elif c == ord('w'): # guarda a imagem ao clicar na tecla w
+        cv2.imwrite(file_name,gui_image)
+    if c==ord('q'):
+        cv2.destroyAllWindows()
+        exit(0)
+
 
     if cor != (0,0,0) and len(xs)>2:  # Se a cor for diferente de preto
         x1 = x
         y1 = y
         x2 = xs[len(xs)-1]
         y2 = ys[len(ys)-1]
-        cv2.line(gui_image,(x1,y1),(x2,y2),cor,2)
+      
+        cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness=5)
         cv2.imshow(window_paint_name,gui_image)
-
+    
     xs.append(x)
     ys.append(y)
-
-
+  
+    
 
 
 
