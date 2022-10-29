@@ -49,15 +49,14 @@ def main():
         cv2.imshow(window_original_name,image)
         cv2.imshow(window_segment_name,image_mask)
         k = cv2.waitKey(1)
-        if k == ord('w'):
+        if k == ord('w'): # when w is pressed it creates a json file
            dictionary = { "limits":{"B":{ "max": str(Bmax) ,"min":  str(Bmin)}, "G":{ "max":str(Gmax),"min": str(Gmin) }, "R":{ "max":str(Rmax),"min": str(Rmin) } }}
            with open("limits.json", "w") as outfile:
             json.dump(dictionary, outfile)
-        if k == ord('q'):
+        if k == ord('q'): # when q is pressed it breaks the loop
             break
 
     
-        # add code to wait for a key press
     capture.release()
     cv2.destroyAllWindows()
 
