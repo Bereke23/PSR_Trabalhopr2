@@ -160,6 +160,7 @@ def desenhar(x,y):  # Função que desenha na janela do paint
         thickness=thickness + 1
     elif c == ord('-'):   # começa a desenhar com um pincel menor
         thickness=thickness - 1
+        
     elif c == ord('w'): # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
     if c==ord('q'):
@@ -173,6 +174,10 @@ def desenhar(x,y):  # Função que desenha na janela do paint
         x2 = xs[len(xs)-1]
         y2 = ys[len(ys)-1]
         print(thickness)
+        if thickness == 1:
+            cv2.putText(gui_image,"MINIMUM THICKNESS", (30,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0),5)
+        if thickness >1:
+            cv2.putText(gui_image,"MINIMUM THICKNESS", (30,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),5)
         cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness)
         cv2.imshow(window_paint_name,gui_image)
     
