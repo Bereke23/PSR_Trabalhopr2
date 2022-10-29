@@ -20,6 +20,8 @@ drawing = False
 gui_image = None
 cor = (0,0,0)
 window_paint_name = 'Paint'
+thickness = 5
+
 # Abre a imagem
 
 def leitura(path):
@@ -136,16 +138,11 @@ def main():
 
 
 def desenhar(x,y):  # Função que desenha na janela do paint
-    # Isto era suposto trabalhar
-    # Parte o desenho na janela do paint
     d = None
     #return time with _  as  a separator using time module
     tempo = time.ctime().replace(' ','_')
-    file_name = 'drawing_' + str(tempo) + '.jpg'
-    
-    
-    
-    global gui_image, cor, window_paint_name
+    file_name = 'drawing_' + str(tempo) + '.jpg'   
+    global gui_image, cor, window_paint_name , thickness
 
 
 
@@ -160,13 +157,10 @@ def desenhar(x,y):  # Função que desenha na janela do paint
     elif c == ord('c'): # Clear paint window
         gui_image.fill(255)
     elif c == ord('+'):   # começa a desenhar com um pincel maior
-       pass 
-    # elif c == ord('-'):   # desenha com um pincel menor
-    #     cv2.line(gui_image, (x,y), (x1,y1), cor, thickness=+1)
-       #diminui o tamanho do pincel
-       #pass
-    elif c == ord('-'):
-        pass
+        thickness=thickness + 1
+    elif c == ord('-'):   # começa a desenhar com um pincel menor
+        thickness=thickness - 1
+        
     elif c == ord('w'): # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
     if c==ord('q'):
@@ -179,8 +173,8 @@ def desenhar(x,y):  # Função que desenha na janela do paint
         y1 = y
         x2 = xs[len(xs)-1]
         y2 = ys[len(ys)-1]
-      
-        cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness=5)
+        print(thickness)
+        cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness)
         cv2.imshow(window_paint_name,gui_image)
     
     xs.append(x)
