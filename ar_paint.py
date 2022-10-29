@@ -160,7 +160,6 @@ def desenhar(x,y):  # Função que desenha na janela do paint
         thickness=thickness + 1
     elif c == ord('-'):   # começa a desenhar com um pincel menor
         thickness=thickness - 1
-        
     elif c == ord('w'): # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
     if c==ord('q'):
