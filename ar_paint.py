@@ -20,7 +20,7 @@ drawing = False
 gui_image = None
 cor = (0,0,0)
 window_paint_name = 'Paint'
-thickness = 5
+thickness_desenho = 5
 
 # Abre a imagem
 
@@ -47,19 +47,22 @@ def Inicializacao():
     parser = argparse.ArgumentParser(description='Modo de funcionamento')
     parser.add_argument('-j','--json',type = str, required= True,
                     help='Full path to json file')
+    parser.add_argument('-usm','--use_shake_mode', action='store_true' ,
+                    help='Use shake prevention mode')                
     args = vars(parser.parse_args())
     path = args['json'] # A localização do ficheiro json
-    return path
+    usm = args['use_shake_mode'] # Ativacao do use shake mode
+    return path , usm
 
 
 def main():
-    global gui_image
+    global gui_image , usm
     capture = cv2.VideoCapture(0)
-    path = Inicializacao() # Vai buscar o caminho do ficheiro JSON
+    path , usm = Inicializacao() # Vai buscar o caminho do ficheiro JSON
     R,G,B = leitura(path) # Dicionario com os max e min de RGB cada um
     _, image = capture.read()  # get an image from the camera
     height,width, _ = np.shape(image)
-    window_paint = np.zeros((height,width,3)) #+ (255,255,255) # Definição do pain (quadro branco)
+    window_paint = np.zeros((height,width,3)) #+ (255,255,255) # Definição do paint (quadro branco)
     window_paint.fill(255)
     gui_image = deepcopy(window_paint)
     while True:
@@ -67,18 +70,14 @@ def main():
         _, image = capture.read()  # get an image from the camera
         height,width, _ = np.shape(image)
         image = cv2.resize(image,(width,height)) # Resize the image
-
         window_original = 'Janela de video real'
-
         cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
         #cv2.namedWindow(window_paint,cv2.WINDOW_AUTOSIZE)
         cv2.resizeWindow(window_original,height,width) # Mesma dimensão da janela
         cv2.imshow(window_original,image) # Show the image
-
         cv2.namedWindow(window_paint_name,cv2.WINDOW_AUTOSIZE)
         cv2.resizeWindow(window_paint_name,height,width) # Mesma dimensão da janela
         cv2.imshow(window_paint_name,gui_image) # Show the image
-
         # Show the image
         # aplicamos a mask na imagem live stream
         image_mask = cv2.inRange(image,(R['min'],G['min'],B['min']), (R['max'],G['max'],B['max']))
@@ -88,9 +87,6 @@ def main():
         cv2.resizeWindow(window_mask,height,width) # Mesma dimensão da janela
         image_wMask = cv2.bitwise_and(image, image, mask=image_mask)
         cv2.imshow(window_mask,image_wMask) # Show the image
-
-        # A parte seguinte está relacionada com a identificação do centroide do objeto
-        # Simplesmente segui as indicações do link que o prof mandou
         # Threshold it so it becomes binary
         _, thresh = cv2.threshold(image_mask,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         # You need to choose 4 or 8 for connectivity type
@@ -112,7 +108,7 @@ def main():
             area = stats[k, cv2.CC_STAT_AREA]
             # Se a area for menor que 150 o programa começa a parar
             if area < 150:continue
-            # Se a area for superior ele continua
+            # Se a area for inferior ele continua
             x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
             y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
             w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
@@ -123,12 +119,9 @@ def main():
             cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
             cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
             cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
-            # cv2.circle(image_copy, (int(X),int(Y)),4, (0, 0, 255), -1) # faz um circulo no ponto do centroide
             cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
+            desenhar(int(X),int(Y),usm)
 
-            #cv2.setMouseCallback(X,Y) # Função que desenha na janela do paint
-
-            desenhar(int(X),int(Y))
 
         k= cv2.waitKey(1)
         if k == ord('q'):   # wait for esckey to exit
@@ -137,12 +130,12 @@ def main():
     cv2.destroyAllWindows()
 
 
-def desenhar(x,y):  # Função que desenha na janela do paint
+def desenhar(x,y,usm):  # Função que desenha na janela do paint
     d = None
     #return time with _  as  a separator using time module
     tempo = time.ctime().replace(' ','_')
     file_name = 'drawing_' + str(tempo) + '.jpg'   
-    global gui_image, cor, window_paint_name , thickness
+    global gui_image, cor, window_paint_name , thickness_desenho 
 
 
 
@@ -157,13 +150,12 @@ def desenhar(x,y):  # Função que desenha na janela do paint
     elif c == ord('c'): # Clear paint window
         gui_image.fill(255)
     elif c == ord('+'):   # começa a desenhar com um pincel maior
-        thickness=thickness + 1
+        thickness_desenho=thickness_desenho + 1
     elif c == ord('-'):  # começa a desenhar com um pincel menor
-        if thickness == 1: # não deixa mir abaixo de um
-            thickness=thickness
-        if thickness >1:
-            thickness = thickness -1         
-        
+        if thickness_desenho == 1: # não deixa ir abaixo de um
+            thickness_desenho=thickness_desenho
+        if thickness_desenho >1: # caso for superior a 1 deixa diminuir a grossura
+            thickness_desenho = thickness_desenho -1                 
     elif c == ord('w'): # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
     if c==ord('q'):
@@ -176,13 +168,24 @@ def desenhar(x,y):  # Função que desenha na janela do paint
         y1 = y
         x2 = xs[len(xs)-1]
         y2 = ys[len(ys)-1]
-        print(thickness)
-        cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness)
+        cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
         cv2.imshow(window_paint_name,gui_image)
-    
+
+
+
+        # PARTE USE SHAKE DETECTION
+        # if usm == True and abs(x2 - x1) > 3 and abs(y2-y1) > 3:
+        #     cv2.imshow(window_paint_name,gui_image)
+        #     pass 
+        # if usm == False:
+        #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
+        #     cv2.imshow(window_paint_name,gui_image)
+        # if usm and abs(x2 - x1) == 0:
+        #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
+        #     cv2.imshow(window_paint_name,gui_image)
     xs.append(x)
     ys.append(y)
-  
+    
     
 
 
