@@ -108,7 +108,6 @@ def main():
             area = stats[k, cv2.CC_STAT_AREA]
             # Se a area for menor que 150 o programa começa a parar
             if area < 150:continue
-            # Se a area for inferior ele continua
             x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
             y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
             w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
@@ -178,8 +177,8 @@ def desenhar(x,y,usm):  # Função que desenha na janela do paint
         #     cv2.imshow(window_paint_name,gui_image)
         #     pass 
         # if usm == False:
-        #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
-        #     cv2.imshow(window_paint_name,gui_image)
+        #      cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
+        #      cv2.imshow(window_paint_name,gui_image)
         # if usm and abs(x2 - x1) == 0:
         #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
         #     cv2.imshow(window_paint_name,gui_image)
