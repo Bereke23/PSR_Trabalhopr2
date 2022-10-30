@@ -159,7 +159,7 @@ def desenhar(x,y):  # Função que desenha na janela do paint
     elif c == ord('+'):   # começa a desenhar com um pincel maior
         thickness=thickness + 1
     elif c == ord('-'):  # começa a desenhar com um pincel menor
-        if thickness == 1:
+        if thickness == 1: # não deixa mir abaixo de um
             thickness=thickness
         if thickness >1:
             thickness = thickness -1         
