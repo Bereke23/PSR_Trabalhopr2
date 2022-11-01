@@ -17,7 +17,7 @@ xs= []
 ys= []
 drawing = False
 gui_image = None
-cor = np.array([[0,0,0]])
+cor = np.array([[0,0,0,0]])
 window_paint_name = 'Paint'
 video_window = 'Copy Janela de video (To draw)'
 thickness_desenho = 5
@@ -63,7 +63,7 @@ def main():
     R,G,B = leitura(path) # Dicionario com os max e min de RGB cada um
     _, image = capture.read()  # get an image from the camera
     height,width, _ = np.shape(image)
-    window_paint = np.zeros((height,width,3)) #+ (255,255,255) # Definição do paint (quadro branco)
+    window_paint = np.zeros((height,width,4)) #+ (255,255,255) # Definição do paint (quadro branco)
     window_paint.fill(255)
     gui_image = deepcopy(window_paint)
     while True:
@@ -93,7 +93,7 @@ def main():
         video_copy = deepcopy(image)
         cv2.namedWindow(video_window,cv2.WINDOW_AUTOSIZE)
         cv2.resizeWindow(video_window,height,width) # Mesma dimensão da janela
-        cv2.imshow(video_window,video_copy)
+        # cv2.imshow(video_window,video_copy)
         # Threshold it so it becomes binary
         _, thresh = cv2.threshold(image_mask,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         # You need to choose 4 or 8 for connectivity type
@@ -138,7 +138,7 @@ def main():
     cv2.destroyAllWindows()
 
 
-def desenhar(x,y,usm,video_name):  # Função que desenha na janela do paint
+def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
     d = None
     #return time with _  as  a separator using time module
     tempo = time.ctime().replace(' ','_')
@@ -146,31 +146,30 @@ def desenhar(x,y,usm,video_name):  # Função que desenha na janela do paint
     global gui_image, cor, window_paint_name , thickness_desenho
 
     c= cv2.waitKey(1)
-    if c == ord('b'): # Blue color
-        cor = np.append(cor, [[255,0,0]], axis=0)
-    elif c == ord('g'): # Green color
-        cor = np.append(cor, [[0,255,0]], axis=0)
-    elif c == ord('r'): # Red color
-        cor = np.append(cor, [[0,0,255]], axis=0)
-    elif c == ord('c'): # Clear paint window
+    if c == ord('b'):               # Blue color
+        cor = np.append(cor, [[255,0,0,1]], axis=0)
+    elif c == ord('g'):             # Green color
+        cor = np.append(cor, [[0,255,0,1]], axis=0)
+    elif c == ord('r'):             # Red color
+        cor = np.append(cor, [[0,0,255,1]], axis=0)
+    elif c == ord('c'):             # Clear paint window
         gui_image.fill(255)
-    elif c == ord('+'):   # começa a desenhar com um pincel maior
+    elif c == ord('+'):             # começa a desenhar com um pincel maior
         thickness_desenho=thickness_desenho + 1
-    elif c == ord('-'):  # começa a desenhar com um pincel menor
-        if thickness_desenho == 1: # não deixa ir abaixo de um
+    elif c == ord('-'):             # começa a desenhar com um pincel menor
+        if thickness_desenho == 1:  # não deixa ir abaixo de um
             thickness_desenho=thickness_desenho
-        if thickness_desenho >1: # caso for superior a 1 deixa diminuir a grossura
+        if thickness_desenho >1:    # caso for superior a 1 deixa diminuir a grossura
             thickness_desenho = thickness_desenho -1
-    elif c == ord('w'): # guarda a imagem ao clicar na tecla w
+    elif c == ord('w'):             # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
     if c==ord('q'):
         cv2.destroyAllWindows()
         exit(0)
-
-    if not np.array_equal(cor[cor.shape[0]-1], [0,0,0]):  # Se a cor for diferente de preto
+    print(cor)
+    if not np.array_equal(cor[cor.shape[0]-1], [0,0,0,0]):  # Se a cor for diferente de preto
         xs.append(x)
         ys.append(y)
-        # cor = np.append(cor, cor, axis=0)
         if len(xs)>1:
             x = xs[len(xs)-2]
             y = ys[len(ys)-2]
@@ -178,29 +177,13 @@ def desenhar(x,y,usm,video_name):  # Função que desenha na janela do paint
             y2 = ys[len(ys)-1]
             cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
             cv2.imshow(window_paint_name,gui_image)
-            # for i in range(len(xs)-1):
-            #     x1 = xs[i]
-            #     y1 = ys[i]
-            #     x2 = xs[i-1]
-            #     y2 = ys[i-1]
-            #     if x1 != x2 or y1 != y2:
-                    # cv2.line(video_name,(x1,y1),(x2,y2),(int(cor[i+1][0]),int(cor[i+1][1]),int(cor[i+1][2])),thickness_desenho)
-                    # cv2.imshow(video_window,video_name)
-
-        # PARTE USE SHAKE DETECTION
-        # if usm == True and abs(x2 - x1) > 3 and abs(y2-y1) > 3:
-        #     cv2.imshow(window_paint_name,gui_image)
-        #     pass
-        # if usm == False:
-        #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
-        #     cv2.imshow(window_paint_name,gui_image)
-        # if usm and abs(x2 - x1) == 0:
-        #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
-        #     cv2.imshow(window_paint_name,gui_image)
-
-
-
-
+            video_frame = cv2.cvtColor(video_frame,cv2.COLOR_BGR2BGRA)
+            gui_image_h,gui_image_w,gui_image_c = gui_image.shape
+            for i in range(0,gui_image_h):
+                for j in range(0,gui_image_w):
+                    if gui_image[i,j][3] != 255:
+                        video_frame[i,j] = gui_image[i,j]
+            cv2.imshow(video_window,video_frame)
 
 
 if __name__ == '__main__':
