@@ -10,6 +10,7 @@ from cv2 import GC_BGD
 import numpy as np
 from requests import patch
 import time
+import math
 
 
 paintWindow = (0,0,0)
@@ -166,7 +167,6 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
     if c==ord('q'):
         cv2.destroyAllWindows()
         exit(0)
-    print(cor)
     if not np.array_equal(cor[cor.shape[0]-1], [0,0,0,0]):  # Se a cor for diferente de preto
         xs.append(x)
         ys.append(y)
@@ -175,8 +175,15 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
             y = ys[len(ys)-2]
             x2 = xs[len(xs)-1]
             y2 = ys[len(ys)-1]
-            cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
-            cv2.imshow(window_paint_name,gui_image)
+            if usm:
+                if math.dist((x,y),(x2,y2)) < 5:
+                    cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
+                    cv2.imshow(window_paint_name,gui_image)
+                else:
+                    cv2.imshow(window_paint_name,gui_image)
+            if not usm:
+                cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
+                cv2.imshow(window_paint_name,gui_image)
             video_frame = cv2.cvtColor(video_frame,cv2.COLOR_BGR2BGRA)
             gui_image_h,gui_image_w,gui_image_c = gui_image.shape
             for i in range(0,gui_image_h):
