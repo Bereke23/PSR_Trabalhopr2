@@ -172,6 +172,8 @@ def desenhar(x,y,usm,video_name):  # Função que desenha na janela do paint
         ys.append(y)
         # cor = np.append(cor, cor, axis=0)
         if len(xs)>1:
+            x = xs[len(xs)-2]
+            y = ys[len(ys)-2]
             x2 = xs[len(xs)-1]
             y2 = ys[len(ys)-1]
             cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
