@@ -22,6 +22,9 @@ cor = np.array([[0,0,0,0]])
 window_paint_name = 'Paint'
 video_window = 'Copy Janela de video (To draw)'
 thickness_desenho = 5
+usm = False
+test_mode = False
+cor_rato=(0,0,0)
 
 # Abre a imagem
 
@@ -48,10 +51,12 @@ def Inicializacao():
     parser = argparse.ArgumentParser(description='Modo de funcionamento')
     parser.add_argument('-j','--json',type = str, required= True, help='Full path to json file')
     parser.add_argument('-usm','--use_shake_mode', action='store_true', help='Use shake prevention mode')
+    parser.add_argument('-t','--test_mode', action='store_true', help='test the program')
     args = vars(parser.parse_args())
     path = args['json'] # A localização do ficheiro json
     usm = args['use_shake_mode'] # Ativacao do use shake mode
-    return path , usm
+    test_mode =args['test_mode']
+    return path , usm , test_mode
 
 # def desenharPinguim(): # Funcionalidade avançada 4 - Pintura numerada
 
@@ -60,7 +65,7 @@ def Inicializacao():
 def main():
     global gui_image , usm
     capture = cv2.VideoCapture(0)
-    path , usm = Inicializacao() # Vai buscar o caminho do ficheiro JSON
+    path , usm, test_mode = Inicializacao() # Vai buscar o caminho do ficheiro JSON
     R,G,B = leitura(path) # Dicionario com os max e min de RGB cada um
     _, image = capture.read()  # get an image from the camera
     height,width, _ = np.shape(image)
@@ -108,28 +113,52 @@ def main():
         stats = output[2]
         # The fourth cell is the centroid matrix
         centroids = output[3]
+        if usm and test_mode:
+            cv2.setMouseCallback(window_paint_name,desenharato)
+        if usm and not test_mode:
+            for k in range(1,num_labels):
+                # size filtering
+                image_copy = deepcopy(image)
+                # Identifica as difrentes ares na imagem
+                area = stats[k, cv2.CC_STAT_AREA]
+                # Se a area for menor que 150 o programa começa a parar
+                if area < 150:continue
+                # Se a area for inferior ele continua
+                x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
+                y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
+                w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
+                h = stats[k, cv2.CC_STAT_HEIGHT] # altura do objeto
+                pt1 = (x1, y1)
+                pt2 = (x1+ w, y1+ h)
+                (X, Y) = centroids[k]
+                cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
+                cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
+                cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
+                cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
 
-        for k in range(1,num_labels):
-            # size filtering
-            image_copy = deepcopy(image)
-            # Identifica as difrentes ares na imagem
-            area = stats[k, cv2.CC_STAT_AREA]
-            # Se a area for menor que 150 o programa começa a parar
-            if area < 150:continue
-            # Se a area for inferior ele continua
-            x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
-            y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
-            w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
-            h = stats[k, cv2.CC_STAT_HEIGHT] # altura do objeto
-            pt1 = (x1, y1)
-            pt2 = (x1+ w, y1+ h)
-            (X, Y) = centroids[k]
-            cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
-            cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
-            cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
-            cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
+                desenhar(int(X),int(Y),usm,video_copy)
+        if not usm:
+            for k in range(1,num_labels):
+                    # size filtering
+                    image_copy = deepcopy(image)
+                    # Identifica as difrentes ares na imagem
+                    
+                    area = stats[k, cv2.CC_STAT_AREA]
+                    if area < 150:continue
+                    # Se a area for inferior ele continua
+                    x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
+                    y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
+                    w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
+                    h = stats[k, cv2.CC_STAT_HEIGHT] # altura do objeto
+                    pt1 = (x1, y1)
+                    pt2 = (x1+ w, y1+ h)
+                    (X, Y) = centroids[k]
+                    cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
+                    cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
+                    cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
+                    cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
 
-            desenhar(int(X),int(Y),usm,video_copy)
+                    desenhar(int(X),int(Y),usm,video_copy)
 
 
         k= cv2.waitKey(1)
@@ -191,6 +220,38 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
                     if gui_image[i,j][3] != 255:
                         video_frame[i,j] = gui_image[i,j]
             cv2.imshow(video_window,video_frame)
+
+
+def desenharato(event,x,y,flags,userdata):
+
+    global drawing, gui_image ,cor_rato
+     
+    if event == cv2.EVENT_LBUTTONDOWN:
+        if drawing:
+            drawing = False
+        else:
+            drawing = True
+            c= cv2.waitKey(1) 
+            if c == 98: # Red
+                cor_rato = (250,0,0)
+            if c == 103: # Green
+                cor_rato = (0,250,0)
+            if c == 114: # Blue
+                cor_rato = (0,0,250)    
+            del xs[:]
+            del ys[:]
+
+
+    if event == cv2.EVENT_MOUSEMOVE:
+        if drawing and cor_rato != (0,0,0):
+            xs.append(x)
+            ys.append(y)
+            for n in range(0,len(xs)-1):
+                x1 = xs[n]
+                y1 = ys[n]
+                x2 = xs[n+1]
+                y2 = ys[n+1]
+                cv2.line(gui_image,(x1,y1),(x2,y2),cor_rato,2)
 
 
 if __name__ == '__main__':
