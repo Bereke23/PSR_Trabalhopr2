@@ -205,7 +205,8 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
             x2 = xs[len(xs)-1]
             y2 = ys[len(ys)-1]
             if usm:
-                if math.dist((x,y),(x2,y2)) < 5:
+                # Mudar o valor de cima para cima se for muito sensivel
+                if math.dist((x,y),(x2,y2)) < 15:
                     cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
                     cv2.imshow(window_paint_name,gui_image)
                 else:
