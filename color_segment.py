@@ -53,6 +53,7 @@ def main():
            dictionary = { "limits":{"B":{ "max": str(Bmax) ,"min":  str(Bmin)}, "G":{ "max":str(Gmax),"min": str(Gmin) }, "R":{ "max":str(Rmax),"min": str(Rmin) } }}
            with open("limits.json", "w") as outfile:
             json.dump(dictionary, outfile)
+            print('File saved')
         if k == ord('q'): # when q is pressed it breaks the loop
             break
 

@@ -11,6 +11,13 @@ import numpy as np
 from requests import patch
 import time
 import math
+ix = -1
+iy = -1
+drawing = False
+cx = -1
+cy = -1
+drawing_reta = False 
+continua_reta = False
 
 
 paintWindow = (0,0,0)
@@ -25,7 +32,7 @@ thickness_desenho = 5
 usm = False
 test_mode = False
 cor_rato=(0,0,0)
-
+continua = False
 # Abre a imagem
 
 def leitura(path):
@@ -209,11 +216,12 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
     #return time with _  as  a separator using time module
     tempo = time.ctime().replace(' ','_')
     file_name = 'drawing_' + str(tempo) + '.jpg'
-    global gui_image, cor, window_paint_name , thickness_desenho,video
+    global gui_image, cor, window_paint_name , thickness_desenho,video , ix, iy, drawing_reta , continua_reta, cx, cy, drawing , continua
     height,width, _ = np.shape(image)
     bart=cv2.imread('bart.jpg')
     bart=cv2.resize(bart,(width,height))
     c= cv2.waitKey(1)
+
     if c == ord('b'):               # Blue color
         cor = np.append(cor, [[255,0,0,1]], axis=0)
     elif c == ord('g'):             # Green color
@@ -233,10 +241,38 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
             thickness_desenho = thickness_desenho -1
     elif c == ord('w'):             # guarda a imagem ao clicar na tecla w
         cv2.imwrite(file_name,gui_image)
+    if c == ord('s'):
+        drawing_reta = True
+        ix = x
+        iy = y
+        if drawing_reta == True:
+            cv2.rectangle(gui_image, pt1=(ix,iy), pt2=(x, y),color=(0,255,0),thickness=-1)
+            continua_reta = True
+    elif not c == ord('s'):
+            if continua_reta:
+                cv2.rectangle(gui_image, pt1=(ix,iy), pt2=(x, y),color=(0,255,0),thickness=-1)
+                drawing_reta = False
+                if c == ord('f'):
+                    continua_reta = False
+                    
+    if c == ord('e'):
+        drawing = True
+        cx = x
+        cy = y
+        if drawing == True:
+            cv2.circle(gui_image, center = (cx,cy), radius = int(math.dist(((cx,cy)),(x,y))), color = (0,255,0), thickness = -1)
+            continua = True
+    elif not c == ord('e'):
+            if continua:
+                cv2.circle(gui_image, center = (cx,cy), radius = int(math.dist((cx,cy),(x,y))), color = (0,255,0), thickness = -1)
+                drawing = False
+                if c == ord('f'):
+                    continua = False
+
     if c==ord('q'):
         cv2.destroyAllWindows()
         exit(0)
-    if not np.array_equal(cor[cor.shape[0]-1], [0,0,0,0]):  # Se a cor for diferente de preto
+    if not drawing and not np.array_equal(cor[cor.shape[0]-1], [0,0,0,0]):  # Se a cor for diferente de preto
         xs.append(x)
         ys.append(y)
         if len(xs)>1:
@@ -325,9 +361,9 @@ def desenharato(event,x,y,flags,userdata):
             c= cv2.waitKey(1) 
             if c == 98: # Red
                 cor_rato = (250,0,0)
-            if c == 103: # Green
+            elif c == 103: # Green
                 cor_rato = (0,250,0)
-            if c == 114: # Blue
+            elif c == 114: # Blue
                 cor_rato = (0,0,250)    
             del xs[:]
             del ys[:]
