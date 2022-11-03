@@ -52,46 +52,30 @@ def Inicializacao():
     parser.add_argument('-j','--json',type = str, required= True, help='Full path to json file')
     parser.add_argument('-usm','--use_shake_mode', action='store_true', help='Use shake prevention mode')
     parser.add_argument('-t','--test_mode', action='store_true', help='test the program')
-    parser.add_argument('-z','--zone_mode', action='store_true', help='Use zone mode')
-    parser.add_argument('-v','--video_mode',action='store_true', help='Use video mode')
     args = vars(parser.parse_args())
     path = args['json'] # A localização do ficheiro json
     usm = args['use_shake_mode'] # Ativacao do use shake mode
     test_mode =args['test_mode']
-    zone = args['zone_mode']    #Ativação da divisao da imagem por zonas
-    video = args['video_mode']
-    return path , usm , test_mode, zone,video
+    return path , usm , test_mode
 
 # def desenharPinguim(): # Funcionalidade avançada 4 - Pintura numerada
 
 
 
 def main():
-    global gui_image , usm, zone, image,video
+    global gui_image , usm
     capture = cv2.VideoCapture(0)
-    path , usm, test_mode,zone, video = Inicializacao() # Vai buscar o caminho do ficheiro JSON
+    path , usm, test_mode = Inicializacao() # Vai buscar o caminho do ficheiro JSON
     R,G,B = leitura(path) # Dicionario com os max e min de RGB cada um
     _, image = capture.read()  # get an image from the camera
     height,width, _ = np.shape(image)
     window_paint = np.zeros((height,width,4)) #+ (255,255,255) # Definição do paint (quadro branco)
     window_paint.fill(255)
-    bart=cv2.imread('bart.jpg',1)
-    bart=cv2.resize(bart,(width,height))
-    
-    if zone:    
-        gui_image = deepcopy(bart)
-        
-        print(np.shape(gui_image))
-    else:
-        gui_image = deepcopy(window_paint)
-    print(zone)
-
+    gui_image = deepcopy(window_paint)
     while True:
-        
 
         _, image = capture.read()  # get an image from the camera
         height,width, _ = np.shape(image)
-        # print(height,width)
         image = cv2.resize(image,(width,height)) # Resize the image
         window_original = 'Janela de video real'
         cv2.namedWindow(window_original,cv2.WINDOW_AUTOSIZE)
@@ -101,7 +85,7 @@ def main():
         cv2.namedWindow(window_paint_name,cv2.WINDOW_AUTOSIZE)
         cv2.resizeWindow(window_paint_name,height,width) # Mesma dimensão da janela
         cv2.imshow(window_paint_name,gui_image) # Show the image
-        
+        # Show the image
         # aplicamos a mask na imagem live stream
         image_mask = cv2.inRange(image,(R['min'],G['min'],B['min']), (R['max'],G['max'],B['max']))
 
@@ -175,28 +159,8 @@ def main():
                     cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
 
                     desenhar(int(X),int(Y),usm,video_copy)
-        if video:
-            for k in range(1,num_labels):
-                # size filtering
-                image_copy = deepcopy(image)
-                # Identifica as difrentes ares na imagem
-                area = stats[k, cv2.CC_STAT_AREA]
-                # Se a area for menor que 150 o programa começa a parar
-                if area < 150:continue
-                # Se a area for inferior ele continua
-                x1 = stats[k, cv2.CC_STAT_LEFT] # x do centroide
-                y1 = stats[k, cv2.CC_STAT_TOP] # y do centroide
-                w = stats[k, cv2.CC_STAT_WIDTH] # largura do objeto
-                h = stats[k, cv2.CC_STAT_HEIGHT] # altura do objeto
-                pt1 = (x1, y1)
-                pt2 = (x1+ w, y1+ h)
-                (X, Y) = centroids[k]
-                cv2.rectangle(image_copy,pt1,pt2,(0, 255, 0), 3) # faz um retangulo a volta do objeto
-                cv2.line(image_copy,(int(X)-5,int(Y)),(int(X)+5,int(Y)),(0, 0, 255),thickness=2)
-                cv2.line(image_copy,(int(X),int(Y)-5),(int(X),int(Y)+5),(0, 0, 255),thickness=2)
-                cv2.imshow(window_original,image_copy) # mosta a imagem real com os contornos
-                desenhar(int(X),int(Y),usm,video_copy)
-        
+
+
         k= cv2.waitKey(1)
         if k == ord('q'):   # wait for esckey to exit
             break
@@ -209,10 +173,8 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
     #return time with _  as  a separator using time module
     tempo = time.ctime().replace(' ','_')
     file_name = 'drawing_' + str(tempo) + '.jpg'
-    global gui_image, cor, window_paint_name , thickness_desenho,video
-    height,width, _ = np.shape(image)
-    bart=cv2.imread('bart.jpg')
-    bart=cv2.resize(bart,(width,height))
+    global gui_image, cor, window_paint_name , thickness_desenho
+
     c= cv2.waitKey(1)
     if c == ord('b'):               # Blue color
         cor = np.append(cor, [[255,0,0,1]], axis=0)
@@ -220,10 +182,8 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
         cor = np.append(cor, [[0,255,0,1]], axis=0)
     elif c == ord('r'):             # Red color
         cor = np.append(cor, [[0,0,255,1]], axis=0)
-    elif c == ord('c') and not zone:             # Clear paint window
+    elif c == ord('c'):             # Clear paint window
         gui_image.fill(255)
-    elif c == ord('c') and zone:
-        gui_image=deepcopy(bart)
     elif c == ord('+'):             # começa a desenhar com um pincel maior
         thickness_desenho=thickness_desenho + 1
     elif c == ord('-'):             # começa a desenhar com um pincel menor
@@ -245,73 +205,23 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
             x2 = xs[len(xs)-1]
             y2 = ys[len(ys)-1]
             if usm:
-                if math.dist((x,y),(x2,y2)) < 10:
+                # Mudar o valor de cima para cima se for muito sensivel
+                if math.dist((x,y),(x2,y2)) < 15:
                     cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
                     cv2.imshow(window_paint_name,gui_image)
                 else:
                     cv2.imshow(window_paint_name,gui_image)
-            if not usm and not zone:
+            if not usm:
                 cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
                 cv2.imshow(window_paint_name,gui_image)
-            if video:
-                video_frame = cv2.cvtColor(video_frame,cv2.COLOR_BGR2BGRA)
-                gui_image_h,gui_image_w,gui_image_c = gui_image.shape
-                for i in range(0,gui_image_h):
-                    for j in range(0,gui_image_w):
-                        if gui_image[i,j][3] != 255:
-                            video_frame[i,j] = gui_image[i,j]
-                cv2.imshow(video_window,video_frame)
+            video_frame = cv2.cvtColor(video_frame,cv2.COLOR_BGR2BGRA)
+            gui_image_h,gui_image_w,gui_image_c = gui_image.shape
+            for i in range(0,gui_image_h):
+                for j in range(0,gui_image_w):
+                    if gui_image[i,j][3] != 255:
+                        video_frame[i,j] = gui_image[i,j]
+            cv2.imshow(video_window,video_frame)
 
-            
-            
-            if zone:
-                cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
-                cv2.imshow(window_paint_name,gui_image)  
-                blue_painting=[]
-                green_painting=[]
-                red_painting=[]
-                bart_painted=cv2.imread('bart_painted.jpg')
-                height,width,depth  = np.shape(gui_image)
-                #if pixel in gui_image is blue then add to blue_painting list
-                for i in range(0,height):
-                    for j in range(0,width):
-                        if gui_image[i,j][0] == 255 and gui_image[i,j][1] == 0 and gui_image[i,j][2] == 0:
-                            blue_painting.append([i,j])
-                        if gui_image[i,j][0] == 0 and gui_image[i,j][1] == 255 and gui_image[i,j][2] == 0:
-                            green_painting.append([i,j])
-                        if gui_image[i,j][0] == 0 and gui_image[i,j][1] == 0 and gui_image[i,j][2] == 255:
-                            red_painting.append([i,j])
-                
-                
-                # blue_painted  = bart_painted[:,:,0]
-                # green_painted = bart_painted[:,:,1]
-                # red_painted   = bart_painted[:,:,2]
-                
-                # blue_percent_right = len(blue_painting)/len(blue_painted)
-                # green_percent_right = len(green_painting)/len(green_painted)
-                # red_percent_right = len(red_painting)/len(red_painted)
-                # print(blue_percent_right,green_percent_right,red_percent_right)
-                
-               
-                
-            # video_frame = cv2.cvtColor(video_frame,cv2.COLOR_BGR2BGRA)
-            # gui_image_h,gui_image_w,gui_image_c = gui_image.shape
-            # for i in range(0,gui_image_h):
-            #     for j in range(0,gui_image_w):
-            #         if cor != (0,0,0) and len(xs)>2:
-            #             cv2.line(gui_image,(x,y),(x2,y2),(int(cor[cor.shape[0]-1][0]),int(cor[cor.shape[0]-1][1]),int(cor[cor.shape[0]-1][2])),thickness_desenho)
-            # if cor != (0,0,0) and len(xs)>2:  # Se a cor for diferente de preto
-            #     x1 = x
-            #     y1 = y
-            #     x2 = xs[len(xs)-1]
-            #     y2 = ys[len(ys)-1]
-                
-            #     cv2.line(gui_image,(x1,y1),(x2,y2),cor,thickness_desenho)
-            #     cv2.imshow(window_paint_name,gui_image)
-            
-            
-            # cv2.imshow(video_window,video_frame)
-               
 
 def desenharato(event,x,y,flags,userdata):
 
@@ -345,10 +255,5 @@ def desenharato(event,x,y,flags,userdata):
                 cv2.line(gui_image,(x1,y1),(x2,y2),cor_rato,2)
 
 
-
 if __name__ == '__main__':
     main()
-
-
-  
-    
