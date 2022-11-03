@@ -257,13 +257,11 @@ def desenhar(x,y,usm,video_frame):  # Função que desenha na janela do paint
                     
     if c == ord('e'):
         drawing = True
-        print('3')
         cx = x
         cy = y
         if drawing == True:
             cv2.circle(gui_image, center = (cx,cy), radius = int(math.dist(((cx,cy)),(x,y))), color = (0,255,0), thickness = -1)
             continua = True
-            print('2')
     elif not c == ord('e'):
             if continua:
                 cv2.circle(gui_image, center = (cx,cy), radius = int(math.dist((cx,cy),(x,y))), color = (0,255,0), thickness = -1)
