@@ -44,7 +44,7 @@ def main():
 
 
             #masking the image using inRange() function
-        image_mask = cv2.inRange(image,(Rmin,Gmin,Bmin), (Rmax,Gmax,Bmax))
+        image_mask = cv2.inRange(image,(Rmin,Gmin,Bmin),(Rmax,Gmax,Bmax))
         
         cv2.imshow(window_original_name,image)
         cv2.imshow(window_segment_name,image_mask)
